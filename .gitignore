@@ -16,3 +16,11 @@
 *.exe
 *.out
 *.app
+
+#Others
+*.oprof
+*.tar.gz
+*.*ni
+*.3
+*.2
+*.0
