@@ -4,26 +4,25 @@
 
 #define N_ITER 10000000
 
-#define depth_loop(a, b, c, i, j) ({\
-    (C)[(i)][(j)] = (C)[(i)][(j)] + (A)[(i)][0] * (B)[0][(j)]; \
-    (C)[(i)][(j)] = (C)[(i)][(j)] + (A)[(i)][1] * (B)[1][(j)]; \
-    (C)[(i)][(j)] = (C)[(i)][(j)] + (A)[(i)][2] * (B)[2][(j)]; \
-    (C)[(i)][(j)] = (C)[(i)][(j)] + (A)[(i)][3] * (B)[3][(j)]; \
-})
+void multiplica(int A[4][4], int B[4][4], int C[4][4], unsigned int n_iter)
+{
+   int iter;
+   int i,j,k;
 
-#define multiplica(a,b,c,n_iter) ({ \
-    int iter; \
-    int i,j,k;\
-    for (iter = 0; iter < (n_iter); iter++) { \
-        for (i = 0; i < 4; i++ ) { \
-            for (j = 0; j < 4; j++) { \
-                depth_loop(a,b,c,i,j); \
-             }\
-         }\
-     }\
-})
-         
-
+   for (iter=0; iter<n_iter; iter++)
+   {
+      for (i = 0; i < 4; i++) 
+      {
+        for (j = 0; j < 4; j++) 
+	{
+           for (k = 0; k < 4; k++) 
+	   {
+              C[i][j] = C[i][j] + A[i][k] * B[k][j];
+	   }
+	}
+      }
+   }
+}
 
 void print_matriu(int C[][4])
 {
