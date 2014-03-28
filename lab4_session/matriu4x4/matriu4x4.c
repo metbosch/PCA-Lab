@@ -11,15 +11,25 @@
     (C)[(i)][(j)] = (C)[(i)][(j)] + (A)[(i)][3] * (B)[3][(j)]; \
 })
 
+#define level_2(a, b, c, i) ({\
+    depth_loop(a,b,c,i,0); \
+    depth_loop(a,b,c,i,1); \
+    depth_loop(a,b,c,i,2); \
+    depth_loop(a,b,c,i,3); \
+})
+
+#define level_up(a, b, c) ({\
+    level_2(a, b, c, 0);\
+    level_2(a, b, c, 1);\
+    level_2(a, b, c, 2);\
+    level_2(a, b, c, 3);\
+})
+
 #define multiplica(a,b,c,n_iter) ({ \
     int iter; \
     int i,j,k;\
     for (iter = 0; iter < (n_iter); iter++) { \
-        for (i = 0; i < 4; i++ ) { \
-            for (j = 0; j < 4; j++) { \
-                depth_loop(a,b,c,i,j); \
-             }\
-         }\
+        level_up(a, b, c);\
      }\
 })
          
