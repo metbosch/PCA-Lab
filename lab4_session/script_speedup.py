@@ -62,18 +62,28 @@ def main():
 		last_optimized = 0.0
 		i = 0
 		while i < NUM_EXECS:
-			print "Starting the execution number: " + str(i)
-			print "  Start Original"
+			print "Execution number: " + str(i)
+			if (i%2):
+				print "  Start Optimizated\t",
+			else:
+				print "  Start Original\t",
+
 			p1 = subprocess.Popen("time -p ./" + sys.argv[i%2 + 1] + " " + EXE_PARAMS + ">/dev/null", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			(out1, err1) = p1.communicate()
+
 			if (i%2):
 				last_optimized = getExecTime(err1)
 				total_time += last_optimized
+				print last_optimized
 			else:
 				last_original = getExecTime(err1)
 				original_time += last_original
+				print last_original
 			
-			print "  Start Optimizated"
+			if (i%2):
+				print "  Start Original\t",
+			else:
+				print "  Start Optimizated\t",
 			# The execution of program prints in stdout (out2) and time program prints in stderr (err2)
 			# If any error happens on program execution, their error output is terminal
 			p2 = subprocess.Popen("time -p ./" + sys.argv[(i+1)%2 + 1] + " " + EXE_PARAMS + ">/dev/null", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -81,9 +91,11 @@ def main():
 			if (i%2):
 				last_original = getExecTime(err2)
 				original_time += last_original
+				print last_original
 			else:
 				last_optimized = getExecTime(err2)
 				total_time += last_optimized
+				print last_optimized
 			
 			# Adds to file the execution time
 			with open("script.out", "a") as my_file:
