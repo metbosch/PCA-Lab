@@ -166,19 +166,6 @@ void INI_DIVIDE_239()
     }    
 }
 
-void DIVIDE( char *x, int n )                           
-{                                                
-    int j, k;
-    unsigned q, r, u;
-    long v;
-
-    r = 0;                                       
-    for( k = 0; k <= N4; k++ )                  
-    {                                            
-                                       
-    }                                           
-}
-
 void LONGDIV( char *x, int n )                          
 {                                                
     int j, k;
