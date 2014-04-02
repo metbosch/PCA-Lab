@@ -5,25 +5,15 @@
 #define OPS_DIV_239(_k) ({\
 	q = quo_239[r];\
         r_aux = rest_239[r];\
-        r = (r_aux << 3) + r_aux + r_aux + x[(_k) + 1];\
-        x[(_k)] = q;\
-})
-
-#define OPS_DIV_239_3(_k) ({\
-        r_aux = rest_239[r];\
-        q = quo_239[r];\
-        r = (r_aux << 3) + r_aux + r_aux + x[(_k)];\
-        r_aux = rest_239[r2];\
-        q = quo_239[r2];\
-        r2 = (r_aux << 3) + r_aux + r_aux + x[(_k)];\
+        r = (r_aux * 10) + x[(_k) + 1];\
         x[(_k)] = q;\
 })
 
 #define OPS_DIV_239_2(_k) ({\
-        r_aux = (r << 3) + r + r + x[(_k)];\
+        r_aux = (r * 10) + x[(_k)];\
         q = quo_239[r_aux];\
         r = rest_239[r_aux];\
-        r_aux = (r2 << 3) + r2 + r2 + q;\
+        r_aux = (r2 * 10) + q;\
         q2 = quo_239[r_aux];\
         r2 = rest_239[r_aux];\
         x[(_k)] = q2;\
@@ -32,14 +22,21 @@
 #define OPS_DIV_25(_k) ({\
 	x[(_k)] = quo_25[r];\
         r_aux = rest_25[r];\
-        r = (r_aux << 3) + r_aux + r_aux + x[(_k) + 1];\
+        r = (r_aux * 10) + x[(_k) + 1];\
 })
 
 #define OPS_DIV_5(_k) ({ \
     q = quo_5[r]; \
         r_aux = rest_5[r];\
-        r = (r_aux << 3) + r_aux + r_aux + x[(_k) + 1];\
+        r = (r_aux * 10)+ x[(_k) + 1];\
         x[(_k)] = q; \
+})
+
+#define LONG_DIV(_k) ({ \
+    u = r * 10 + x[(_k)]; \
+    q = u / n;\                         
+    r = u - q * n;\                       
+    x[(_k)] = q;\
 })
 
 int N, N4;
@@ -63,18 +60,13 @@ void DIVIDE_239_2( char *x )
     q2 = quo_239[q];
     r2 = rest_239[q];
     x[(k)] = q2;
-    for( k = 1; k <= N4 - 8; k += 8 )                  
+    for( k = 1; k <= N4 - 4; k += 4 )                  
     {   
 	OPS_DIV_239_2(k);
 	OPS_DIV_239_2(k + 1);
 
 	OPS_DIV_239_2(k + 2);
 	OPS_DIV_239_2(k + 3);
-    OPS_DIV_239_2(k+4);
-    OPS_DIV_239_2(k + 5);
-
-    OPS_DIV_239_2(k + 6);
-    OPS_DIV_239_2(k + 7);
 				                             
     }
     for (; k <= N4; ++k) {
@@ -88,18 +80,13 @@ void DIVIDE_239( char *x )
     int k = 0;
     unsigned q, r, u, r_aux;
     r = x[k];                                       
-    for( k = 0; k < N4 - 8; k += 8 )                  
+    for( k = 0; k < N4 - 4; k += 4 )                  
     {   
     OPS_DIV_239(k);
     OPS_DIV_239(k + 1);
 
     OPS_DIV_239(k + 2);
     OPS_DIV_239(k + 3);
-    OPS_DIV_239(k+4);
-    OPS_DIV_239(k + 5);
-
-    OPS_DIV_239(k + 6);
-    OPS_DIV_239(k + 7);
                                              
     }
     for (; k < N4; ++k) {
@@ -116,16 +103,12 @@ void DIVIDE_25( char *x )
     unsigned q, r, u, r_aux;
     
     r = x[k];                                       
-    for( k = 0; k < N4 - 8; k += 8 )                  
+    for( k = 0; k < N4 - 4; k += 4 )                  
     {   
         OPS_DIV_25(k);
         OPS_DIV_25(k + 1);
         OPS_DIV_25(k + 2);
-        OPS_DIV_25(k + 3);
-        OPS_DIV_25(k + 4);
-        OPS_DIV_25(k + 5);
-        OPS_DIV_25(k + 6); 
-        OPS_DIV_25(k + 7);           
+        OPS_DIV_25(k + 3);          
                                         
     }
     for(; k < N4; k++)                  
@@ -141,16 +124,12 @@ void DIVIDE_5( char *x )
     int k = 0;
     unsigned q, r, r_aux, u;
     r = x[k];                                       
-    for( k = 0; k < N4-8; k += 8 )                  
+    for( k = 0; k < N4-4; k += 4 )                  
     {   
         OPS_DIV_5(k);
         OPS_DIV_5(k + 1);
         OPS_DIV_5(k + 2);
-        OPS_DIV_5(k + 3);
-        OPS_DIV_5(k + 4);
-        OPS_DIV_5(k + 5);
-        OPS_DIV_5(k + 6); 
-        OPS_DIV_5(k + 7);                            
+        OPS_DIV_5(k + 3);                          
     }
     for(; k < N4; k++)                  
     {   
@@ -196,10 +175,7 @@ void DIVIDE( char *x, int n )
     r = 0;                                       
     for( k = 0; k <= N4; k++ )                  
     {                                            
-        u = (r << 3) + r + r + x[k];                       
-        q = u / n;                               
-        r = u - q * n;                           
-        x[k] = q;                                
+                                       
     }                                           
 }
 
@@ -207,39 +183,13 @@ void LONGDIV( char *x, int n )
 {                                                
     int j, k;
     unsigned q, r, u;
-    long v;
-
-    if( n < 6553 )                               
-    {                                            
+    int v;
+                                          
         r = 0;                                   
         for( k = 0; k <= N4; k++ )               
         {                                        
-            u = r * 10 + x[k];                   
-            q = u / n;                           
-            r = u - q * n;                       
-            x[k] = q;                            
-        }                                       
-    }                                            
-    else                                         
-    {                                            
-        r = 0;                                   
-        for( k = 0; k <= N4; k++ )              
-        {                                       
-            if( r < 6553 )                      
-            {                                   
-                u = r * 10 + x[k];              
-                q = u / n;                      
-                r = u - q * n;                  
-            }                                   
-            else                                
-            {                                   
-                v = (long) r * 10 + x[k];       
-                q = v / n;                      
-                r = v - q * n;                  
-            }                                   
-            x[k] = q;                           
-        }                                       
-    }                                           
+            LONG_DIV(k);
+        }
 }
 
 void MULTIPLY( char *x, int n )                        
@@ -265,17 +215,18 @@ void SET( char *x, int n )
 
 void SUBTRACT( char *x, char *y, char *z )                      
 {                                                
-    int j, k;
-    unsigned q, r, u;
-    long v;
-    for( k = N4; k >= 0; k-- )                   
-    {                                            
-        if( (x[k] = y[k] - z[k]) < 0 )           
-        {                                        
-            x[k] += 10;                          
-            z[k-1]++;                            
-        }                                        
-    }                                            
+    int k;
+    char ant = 0;
+
+    for( k = N4; k > 1; k-= 2 )                  
+    {
+        char tmp = y[k] - z[k] + ant;                                      
+        x[k] = tmp + ((10)&(tmp>>7));
+        ant = (tmp>>7);
+        tmp = y[k-1] - z[k-1] + ant;                                      
+        x[k-1] = tmp + ((10)&(tmp>>7));
+        ant = (tmp>>7);
+    }
 }
 
 
