@@ -27,6 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "structures.h"
+#include <sys/times.h>
+#include <stdlib.h>
+#include <sys/times.h>
+#include <unistd.h>
 
 
 void print_electric_grid ( fftw_real *grid, int grid_size)
@@ -355,7 +359,10 @@ int main( int argc , char *argv[] ) {
 
   }
   printf( "PCA TIMING SHOULD start here\n");
+  
+    struct tms start, end;
 
+    if (times(&start) == (clock_t)-1) exit(0);
 /************/
 
   /* Do these things first so that bad inputs will be caught soonest */
@@ -549,8 +556,11 @@ int main( int argc , char *argv[] ) {
   /* Main program loop */
 
   max_es_value = 0 ;
-
   printf( "Starting main loop through the rotations\n" ) ;
+  
+  if (times(&end) == (clock_t)-1) exit(0);
+  fprintf(stderr, "\n Timing amb crida al sistems times: user %f segons, system: %f segons\n", (float)(end.tms_utime-start.tms_utime)/sysconf(_SC_CLK_TCK), (float)(end.tms_stime-start.tms_stime)/sysconf(_SC_CLK_TCK));
+
   printf( "PCA TIMING SHOULD stop here\n");
 
   /* PCA: start comment
