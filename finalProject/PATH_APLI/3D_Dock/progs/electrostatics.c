@@ -97,20 +97,6 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
   float		distance ;
   float		phi , epsilon ;
 
-/************/
-
-  for( x = 0 ; x < grid_size ; x ++ ) {
-    for( y = 0 ; y < grid_size ; y ++ ) {
-      for( z = 0 ; z < grid_size ; z ++ ) {
-
-        grid[gaddress(x,y,z,grid_size)] = (fftw_real)0 ;
-
-      }
-    }
-  }
-
-/************/
-
   setvbuf( stdout , (char *)NULL , _IONBF , 0 ) ;
 
   printf( "  electric field calculations ( one dot / grid sheet ) " ) ;

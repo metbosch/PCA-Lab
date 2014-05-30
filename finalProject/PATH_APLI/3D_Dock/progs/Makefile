@@ -25,7 +25,7 @@ SHELL           = /bin/sh
 CC              = gcc
 
 CC_FLAGS        = -O3 -march=core2 -g -static 
-CC_FLAGS_PG     = -O3 -march=core2 -pg -static 
+CC_FLAGS_PG     = -O3 -march=core2 -pg -g -static 
 STRIP           = strip
 
 CC_LINKERS      = -lm
