@@ -48,7 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /* Macros - realy, you don't want to touch these! */
 
-#define gaddress(x,y,z,grid_size) ( (z) + ( 2 * ( (grid_size) / 2 + 1 ) ) * ( (y) + (grid_size) * (x) ) )
+#define gaddress(x,y,z,grid_size) ( (z) + ( ( (grid_size)+ 2 ) ) * ( (y) + (grid_size) * (x) ) )
 
 #define gcentre(ordinate,grid_span,grid_size) ( (float)(ordinate) + .5 ) * (float)( (grid_span) / (float)(grid_size) ) - (float)( (grid_span) / 2 )
 
