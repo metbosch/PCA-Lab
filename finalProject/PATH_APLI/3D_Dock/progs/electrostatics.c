@@ -100,41 +100,41 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 
   float		distance ;
   float		phi , epsilon ;
-
+  const float sum_centre =  (float)((float)grid_span/(float)grid_size);
+  float memo_center[grid_size];
   setvbuf( stdout , (char *)NULL , _IONBF , 0 ) ;
 
   printf( "  electric field calculations ( one dot / grid sheet ) " ) ;
-
-  
+  memo_center[0] = gcentre( 0 , grid_span , grid_size ) ;
+  for (z = 1; z < grid_size; ++z) {
+    memo_center[z] = memo_center[z-1]+sum_centre;
+  }
 
       for( residue = 1 ; residue <= This_Structure.length ; residue ++ ) {
 	for( atom = 1 ; atom <= This_Structure.Residue[residue].size ; atom ++ ) {
 
 	  if( This_Structure.Residue[residue].Atom[atom].charge == 0 ) continue;
 	  
-	  
 	  for( x = 0 ; x < grid_size ; x ++ ) {
 	    //printf("*");
-
-	  x_centre  = gcentre( x , grid_span , grid_size ) ;
-
+	    x_centre = memo_center[x];
+	  
+	    
 	    for( y = 0 ; y < grid_size ; y ++ ) {
-	      
-	      y_centre  = gcentre( y , grid_span , grid_size ) ;
+	      y_centre = memo_center[y];
 	      int index = gaddress(x,y,0,grid_size);
+	     
 	      for( z = 0 ; z < grid_size ; z ++, index++ ) {
 
-		z_centre  = gcentre( z , grid_span , grid_size ) ;
+		    z_centre = memo_center[z];
 
 		    distance = pythagoras( This_Structure.Residue[residue].Atom[atom].coord[1] , This_Structure.Residue[residue].Atom[atom].coord[2] , This_Structure.Residue[residue].Atom[atom].coord[3] , x_centre , y_centre , z_centre ) ;
 		    //distance = ( distance > 2.0 ) ? distance : 2.0 ;
 		    
 		      if( distance < 8.0 ) {
 			if( distance <= 6.0 ) { 
-			  //distance = 2.0;
 			  distance = (distance > 2.0) ? distance : 2.0; 
-			  epsilon = 4 ;
-		    
+			  epsilon = 4;
 			} else {
 
 			  epsilon = ( 38 * distance ) - 224 ;
@@ -145,6 +145,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 	      } 
 	  }
 	}
+	
   }
 }
 
