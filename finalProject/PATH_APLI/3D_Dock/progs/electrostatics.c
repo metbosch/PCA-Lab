@@ -98,7 +98,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 
   /* Variables */
 
-  float		distance ;
+  float		distance, last_distance ;
   float		phi , epsilon ;
   const float sum_centre =  (float)((float)grid_span/(float)grid_size);
   float memo_center[grid_size];
@@ -124,6 +124,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 	      y_centre = memo_center[y];
 	      int index = gaddress(x,y,0,grid_size);
 	     
+	      last_distance = 11000000;
 	      for( z = 0 ; z < grid_size ; z ++, index++ ) {
 
 		    z_centre = memo_center[z];
@@ -141,7 +142,10 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 			  
 			}
 			grid[index] += ( This_Structure.Residue[residue].Atom[atom].charge / ( epsilon * distance ) ) ;
+		      } else if (distance > last_distance){
+			break;
 		      }
+		      last_distance = distance;
 	      } 
 	  }
 	}
