@@ -31,7 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define pythagoras(x1, y1, z1, x2, y2, z2) (\
   sqrt( ( ( (x1) - (x2) ) * ( (x1) - (x2) ) ) + ( ( (y1) - (y2) ) * ( (y1) - (y2) ) ) + ( ( (z1) - (z2) ) * ( (z1) - (z2) ) ) )\
 )
-		    
 
 void assign_charges( struct Structure This_Structure ) {
 
@@ -106,38 +105,56 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 
   printf( "  electric field calculations ( one dot / grid sheet ) " ) ;
 
+  
+
       for( residue = 1 ; residue <= This_Structure.length ; residue ++ ) {
 	for( atom = 1 ; atom <= This_Structure.Residue[residue].size ; atom ++ ) {
 
-	  if( This_Structure.Residue[residue].Atom[atom].charge == 0 ) continue;	  
+	  if( This_Structure.Residue[residue].Atom[atom].charge == 0 ) continue;
+	  
 	  
 	  for( x = 0 ; x < grid_size ; x ++ ) {
+	    //printf("*");
 
-	    x_centre  = gcentre( x , grid_span , grid_size ) ;
+	  x_centre  = gcentre( x , grid_span , grid_size ) ;
 
-	    for( y = 0 ; y < grid_size ; y ++ ) {	      
-
-	      y_centre  = gcentre( y , grid_span , grid_size ) ;
-
-	      for( z = 0 ; z < grid_size ; z ++ ) {
-
-		    z_centre  = gcentre( z , grid_span , grid_size ) ;
-		    distance = pythagoras( This_Structure.Residue[residue].Atom[atom].coord[1] , This_Structure.Residue[residue].Atom[atom].coord[2] , This_Structure.Residue[residue].Atom[atom].coord[3] , x_centre , y_centre , z_centre );
-
-		    if( distance >= 8.0 ) {
-		      epsilon = 80 * distance;
-		    } else if( distance <= 6.0 ) { 
-		      epsilon = (( distance > 2.0 ) ? distance : 2.0) * 2.0;		    
-		    } else {
-		      epsilon = ( 38 * distance * distance ) - 224 * distance;
-		    }
-		    grid[gaddress(x,y,z,grid_size)] += ( This_Structure.Residue[residue].Atom[atom].charge / ( epsilon ) ) ;
-		  } 
-		}
-
-	      }
+	    for( y = 0 ; y < grid_size ; y ++ ) {
 	      
+	      y_centre  = gcentre( y , grid_span , grid_size ) ;
+	      int index = gaddress(x,y,0,grid_size);
+	      for( z = 0 ; z < grid_size ; z ++, index++ ) {
+
+		z_centre  = gcentre( z , grid_span , grid_size ) ;
+
+		    distance = pythagoras( This_Structure.Residue[residue].Atom[atom].coord[1] , This_Structure.Residue[residue].Atom[atom].coord[2] , This_Structure.Residue[residue].Atom[atom].coord[3] , x_centre , y_centre , z_centre ) ;
+		
+		    
+		    //distance = ( distance > 2.0 ) ? distance : 2.0 ;
+
+		      if( distance >= 8.0 ) {
+
+			epsilon = 80 ;
+
+		      } else { 
+
+			if( distance <= 6.0 ) { 
+			  distance = 2.0;
+			  epsilon = 4 ;
+		    
+			} else {
+
+			  epsilon = ( 38 * distance ) - 224 ;
+
+			}
+
+		      }
+
+		      grid[index] += ( This_Structure.Residue[residue].Atom[atom].charge / ( epsilon * distance ) ) ;
+
+	      } 
+	  }
 	}
+  }
 }
 
   printf( "\n" ) ;
