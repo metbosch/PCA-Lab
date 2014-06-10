@@ -129,12 +129,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 		    distance = pythagoras( This_Structure.Residue[residue].Atom[atom].coord[1] , This_Structure.Residue[residue].Atom[atom].coord[2] , This_Structure.Residue[residue].Atom[atom].coord[3] , x_centre , y_centre , z_centre ) ;
 		    //distance = ( distance > 2.0 ) ? distance : 2.0 ;
 		    
-		      if( distance >= 8.0 ) {
-
-			epsilon = 80 ;
-
-		      } else { 
-
+		      if( distance < 8.0 ) {
 			if( distance <= 6.0 ) { 
 			  //distance = 2.0;
 			  distance = (distance > 2.0) ? distance : 2.0; 
@@ -143,13 +138,10 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 			} else {
 
 			  epsilon = ( 38 * distance ) - 224 ;
-
+			  
 			}
-
+			grid[index] += ( This_Structure.Residue[residue].Atom[atom].charge / ( epsilon * distance ) ) ;
 		      }
-
-		      grid[index] += ( This_Structure.Residue[residue].Atom[atom].charge / ( epsilon * distance ) ) ;
-
 	      } 
 	  }
 	}
