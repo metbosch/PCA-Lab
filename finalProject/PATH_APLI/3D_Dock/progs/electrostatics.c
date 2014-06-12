@@ -28,6 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "structures.h"
 
+#define pot2(_num) (\
+  (_num)*(_num)\
+)
+
 #define pythagoras2(x1, y1, z1, x2, y2, z2) (\
   ( ( ( (x1) - (x2) ) * ( (x1) - (x2) ) ) + ( ( (y1) - (y2) ) * ( (y1) - (y2) ) ) + ( ( (z1) - (z2) ) * ( (z1) - (z2) ) ) )\
 )
@@ -144,32 +148,31 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
       coord[2] = This_Structure.Residue[residue].Atom[atom].coord[3];
       
       for( x = 0 ; x < grid_size ; x ++ ) {
-	//printf("*");
-	x_centre = memo_center[x];
-      
 	
+        float part_pytagoras1 = pot2(coord[0] - memo_center[x]);	
 	for( y = 0 ; y < grid_size ; y ++ ) {
-	  y_centre = memo_center[y];
-	  int index = gaddress(x,y,0,grid_size);
 	  
+	  int index = gaddress(x,y,0,grid_size);	  
 	  last_distance = 11000000;
+	  
+	  float part_pytagoras2 = part_pytagoras1 + pot2(coord[1] - memo_center[y]);
 	  for( z = 0 ; z < grid_size ; z ++, index++ ) {
-	    z_centre = memo_center[z];
-	    distance = pythagoras2( coord[0] , coord[1] , coord[2] , x_centre , y_centre , z_centre );
 	    
+	    distance = part_pytagoras2 + pot2(coord[2] - memo_center[z]);	    
 	    if( distance < 64.0 ) {
+	      
 	      if( distance <= 36.0 ) { 
-		distance = (distance > 4.0) ? sqrt(distance) : 2.0; 
-		epsilon = 4;
+		distance = (distance > 4.0) ? sqrt(distance)*4.0 : 8.0; 
 	      } else {
-		distance = sqrt(distance);
-		epsilon = ( 38 * distance ) - 224 ;
-		
+		distance = ( 38 * distance ) - ( 224 * sqrt(distance) );		
 	      }
-	      grid[index] += ( charge / ( epsilon * distance ) ) ;
+	      
+	      grid[index] += ( charge / ( distance ) ) ;
+	      
 	    } else if (distance > last_distance){
 	      break;
 	    }
+	    
 	    last_distance = distance;
 	  } 
       }
