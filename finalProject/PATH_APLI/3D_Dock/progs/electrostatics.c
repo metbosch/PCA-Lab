@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "structures.h"
+#include <emmintrin.h>
 
 #define pot2(_num) (\
   (_num)*(_num)\
@@ -113,6 +114,8 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
   float phi , epsilon ;
   
   float sum_centre =  (float)((float)grid_span/(float)grid_size);
+  
+  // FORÇAR ALINEAMENT
   float memo_center[grid_size];
   setvbuf( stdout , (char *)NULL , _IONBF , 0 ) ;
 
@@ -156,9 +159,14 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 	  last_distance = 11000000;
 	  
 	  float part_pytagoras2 = part_pytagoras1 + pot2(coord[1] - memo_center[y]);
+	  __m128 pythagoras_mask = _mm_set1_ps (part_pytagoras2);
+	  __m128 coord_mask = _mm_set1_ps (coord[2]);
 	  for( z = 0 ; z < grid_size ; z ++, index++ ) {
 	    
-	    distance = part_pytagoras2 + pot2(coord[2] - memo_center[z]);	    
+	    __m128 tmp = _mm_sub_ps(coord_mask, *(__m128 *)(&memo_center[z]));
+	    tmp = _mm_mul_ps(tmp, tmp) + pythagoras_mask;
+	    //distance = part_pytagoras2 + pot2(coord[2] - memo_center[z]);
+	    
 	    if( distance < 64.0 ) {
 	      
 	      if( distance <= 36.0 ) { 
