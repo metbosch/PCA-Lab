@@ -28,8 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "structures.h"
 
-#define pythagoras(x1, y1, z1, x2, y2, z2) (\
-  sqrt( ( ( (x1) - (x2) ) * ( (x1) - (x2) ) ) + ( ( (y1) - (y2) ) * ( (y1) - (y2) ) ) + ( ( (z1) - (z2) ) * ( (z1) - (z2) ) ) )\
+#define pythagoras2(x1, y1, z1, x2, y2, z2) (\
+  ( ( ( (x1) - (x2) ) * ( (x1) - (x2) ) ) + ( ( (y1) - (y2) ) * ( (y1) - (y2) ) ) + ( ( (z1) - (z2) ) * ( (z1) - (z2) ) ) )\
 )
 
 void assign_charges( struct Structure This_Structure ) {
@@ -38,12 +38,12 @@ void assign_charges( struct Structure This_Structure ) {
 
   /* Counters */
 
-  int	residue , atom ;
+  int	residue , atom, current_atom;
 
 /************/
 
   for( residue = 1 ; residue <= This_Structure.length ; residue ++ ) {
-    for( atom = 1 ; atom <= This_Structure.Residue[residue].size ; atom ++ ) {
+    for( atom = 1, current_atom = 0 ; atom <= This_Structure.Residue[residue].size ; atom ++ ) {
 
       This_Structure.Residue[residue].Atom[atom].charge = 0.0 ;
 
@@ -69,8 +69,15 @@ void assign_charges( struct Structure This_Structure ) {
       if( ( strcmp( This_Structure.Residue[residue].res_name , "ASP" ) == 0 ) && ( strncmp( This_Structure.Residue[residue].Atom[atom].atom_name , " OD" , 3 ) == 0 ) ) This_Structure.Residue[residue].Atom[atom].charge = -0.50 ;
       if( ( strcmp( This_Structure.Residue[residue].res_name , "GLU" ) == 0 ) && ( strncmp( This_Structure.Residue[residue].Atom[atom].atom_name , " OE" , 3 ) == 0 ) ) This_Structure.Residue[residue].Atom[atom].charge = -0.50 ;
       if( ( strcmp( This_Structure.Residue[residue].res_name , "LYS" ) == 0 ) && ( strcmp( This_Structure.Residue[residue].Atom[atom].atom_name , " NZ " ) == 0 ) ) This_Structure.Residue[residue].Atom[atom].charge =  1.00 ;
-
+      
+     /* if (This_Structure.Residue[residue].Atom[atom].charge != 0.0 && current_atom == atom) {
+	++current_atom;
+      }
+      else if (This_Structure.Residue[residue].Atom[atom].charge != 0.0){
+	This_Structure.Residue[residue].Atom[++current_atom] = This_Structure.Residue[residue].Atom[atom];
+      }*/
     }
+    //This_Structure.Residue[residue].size = current_atom;
   }
 
 /************/
@@ -126,7 +133,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
   printf( "  electric field calculations ( one dot / one atom ) " ) ;
   for( residue = 1 ; residue <= This_Structure.length ; residue ++ ) {
     for( atom = 1 ; atom <= This_Structure.Residue[residue].size ; atom ++ ) {
-      printf(" * ");
+      printf(".");
       
       float charge = This_Structure.Residue[residue].Atom[atom].charge;
       if( charge == 0 ) continue;
@@ -148,14 +155,14 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 	  last_distance = 11000000;
 	  for( z = 0 ; z < grid_size ; z ++, index++ ) {
 	    z_centre = memo_center[z];
-	    distance = pythagoras( coord[0] , coord[1] , coord[2] , x_centre , y_centre , z_centre );
+	    distance = pythagoras2( coord[0] , coord[1] , coord[2] , x_centre , y_centre , z_centre );
 	    
-	    if( distance < 8.0 ) {
-	      if( distance <= 6.0 ) { 
-		distance = (distance > 2.0) ? distance : 2.0; 
+	    if( distance < 64.0 ) {
+	      if( distance <= 36.0 ) { 
+		distance = (distance > 4.0) ? sqrt(distance) : 2.0; 
 		epsilon = 4;
 	      } else {
-
+		distance = sqrt(distance);
 		epsilon = ( 38 * distance ) - 224 ;
 		
 	      }
