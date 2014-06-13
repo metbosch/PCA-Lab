@@ -126,8 +126,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
   
   float sum_centre =  (float)((float)grid_span/(float)grid_size);
   
-  // FORÇAR ALINEAMENT
-  float memo_center[grid_size];
+  float __attribute__((aligned(16))) memo_center[grid_size];
   setvbuf( stdout , (char *)NULL , _IONBF , 0 ) ;
 
   memo_center[0] = gcentre( 0 , grid_span , grid_size ) ;
@@ -164,32 +163,39 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
       for( x = 0 ; x < grid_size ; x ++ ) {
 	
         float part_pytagoras1 = pot2(coord[0] - memo_center[x]);	
-	for( y = 0 ; y < grid_size ; y ++ ) {
+        for( y = 0 ; y < grid_size ; y ++ ) {
 	  
-	  int index = gaddress(x,y,0,grid_size);	  
-	  last_distance = 11000000;
-	  
-	  float part_pytagoras2 = part_pytagoras1 + pot2(coord[1] - memo_center[y]);
-	  __m128 pythagoras_mask = _mm_set1_ps (part_pytagoras2);
-	  __m128 coord_mask = _mm_set1_ps (coord[2]);
-	  for( z = 0 ; z < grid_size ; z ++, index++ ) {
-	    
-	    __m128 tmp = _mm_sub_ps(coord_mask, *(__m128 *)(&memo_center[z]));
-	    tmp = _mm_mul_ps(tmp, tmp) + pythagoras_mask;
-	    //distance = part_pytagoras2 + pot2(coord[2] - memo_center[z]);
-      float * pointer = (float *)(&tmp);
-	    
-	    checkDist(0);
-      checkDist(1);
-      checkDist(2);
-      checkDist(3);
+        int index = gaddress(x,y,0,grid_size);	  
+        last_distance = 11000000;
+        
+        float part_pytagoras2 = part_pytagoras1 + pot2(coord[1] - memo_center[y]);
+        __m128 pythagoras_mask = _mm_set1_ps (part_pytagoras2);
+        __m128 coord_mask = _mm_set1_ps (coord[2]);
+        for( z = 0 ; z < grid_size - 3 ; z += 4, index += 4 ) {
+            
+            __m128 tmp = _mm_sub_ps(coord_mask, *(__m128 *)(&memo_center[z]));
+            tmp = _mm_mul_ps(tmp, tmp) + pythagoras_mask;
+            //distance = part_pytagoras2 + pot2(coord[2] - memo_center[z]);
+            float * pointer = (float *)(&tmp);
+            
+            checkDist(0);
+            checkDist(1);
+            checkDist(2);
+            checkDist(3);
 
-      if (pointer[3] > last_distance){
-	      break;
-	    }
-	    
-	    last_distance = pointer[3];
-	  } 
+            if (pointer[3] > last_distance){
+                break;
+            }
+            
+            last_distance = pointer[3];
+        }
+        for(; z < grid_size ; z++, index++ ) {
+            
+            distance = part_pytagoras2 + pot2(coord[2] - memo_center[z]);
+            float * pointer = &distance;
+            
+            checkDist(0);
+        }
       }
     }	
   }
