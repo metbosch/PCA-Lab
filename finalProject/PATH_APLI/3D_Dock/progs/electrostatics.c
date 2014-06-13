@@ -37,6 +37,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
   ( ( ( (x1) - (x2) ) * ( (x1) - (x2) ) ) + ( ( (y1) - (y2) ) * ( (y1) - (y2) ) ) + ( ( (z1) - (z2) ) * ( (z1) - (z2) ) ) )\
 )
 
+#define checkDist(_indx) {\
+  if( pointer[_indx] < 64.0 ) {\    
+    if( pointer[_indx] <= 36.0 ) {\
+      pointer[_indx] = (pointer[_indx] > 4.0) ? sqrt(pointer[_indx])*4.0 : 8.0;\
+    } else {\
+      pointer[_indx] = ( 38 * pointer[_indx] ) - ( 224 * sqrt(pointer[_indx]) );\    
+    }\
+    grid[index + _indx] += ( charge / ( pointer[_indx] ) ) ;\    
+  }\
+}
+
 void assign_charges( struct Structure This_Structure ) {
 
 /************/
@@ -166,22 +177,18 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 	    __m128 tmp = _mm_sub_ps(coord_mask, *(__m128 *)(&memo_center[z]));
 	    tmp = _mm_mul_ps(tmp, tmp) + pythagoras_mask;
 	    //distance = part_pytagoras2 + pot2(coord[2] - memo_center[z]);
+      float * pointer = (float *)(&tmp);
 	    
-	    if( distance < 64.0 ) {
-	      
-	      if( distance <= 36.0 ) { 
-		distance = (distance > 4.0) ? sqrt(distance)*4.0 : 8.0; 
-	      } else {
-		distance = ( 38 * distance ) - ( 224 * sqrt(distance) );		
-	      }
-	      
-	      grid[index] += ( charge / ( distance ) ) ;
-	      
-	    } else if (distance > last_distance){
+	    checkDist(0);
+      checkDist(1);
+      checkDist(2);
+      checkDist(3);
+
+      if (pointer[3] > last_distance){
 	      break;
 	    }
 	    
-	    last_distance = distance;
+	    last_distance = pointer[3];
 	  } 
       }
     }	
