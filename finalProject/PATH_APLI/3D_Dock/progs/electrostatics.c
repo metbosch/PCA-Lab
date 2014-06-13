@@ -162,12 +162,18 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
                         if( distance < 64.0 ) {
                         
                         if( distance <= 36.0 ) { 
-                            distance = (distance > 4.0) ? sqrt(distance)*4.0 : 8.0; 
+                            //distance = (distance > 4.0) ? sqrt(distance)*4.0 : 8.0; grid[index] += ( charge / ( distance ) ) ;
+                            distance = (distance > 4.0) ? 0.25/sqrt(distance) : 0.125;
                         } else {
-                            distance = ( 38 * distance ) - ( 224 * sqrt(distance) );        
+                            //distance = ( 38 * distance ) - ( 224 * sqrt(distance) );
+                            // Aproximación lineal de la función anterior
+                            //distance = (22.0042 * distance - 765.349);
+                            // Funció inversa de l'aproximació
+                            distance = -0.00034535 * distance + 0.022523; // ES UNA MALA APROXIMACIÖ
                         }
                         
-                        grid[index] += ( charge / ( distance ) ) ;
+                        //grid[index] += ( charge / ( distance ) ) ;
+                        grid[index] += ( charge * ( distance ) ) ;
                         
                         } else if (distance > last_distance){
                             break;
